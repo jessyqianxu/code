@@ -1,0 +1,571 @@
+---
+title: "Final Project: E-cigarette: a fashion toy for young generation may be an evil"
+output:
+  pdf_document: default
+  html_notebook: default
+---
+
+
+
+$\\$
+
+
+
+## Author:  Qian Xu
+
+## Discussants: 
+
+* Centers for Disease Control and Prevention
+* NIH: national cancer institute, Division of Cancer control and population Sciences
+* The Global Tobacco Surveillance System Data (GTSSData)
+
+
+
+
+
+
+<!--  
+This is a template for creating your final project report. It lays out the sections that should be in your write-up and describes a little about these sections. There is some flexibility to deviate from this structure, for example, interweaving more visualizations and analyses could work well. 
+Your report should be between 5-8 pages long and should contain:
+    1) Introduction: 
+      a) what is question you are addressing 
+      b) why is important 
+      c) where you got the data
+      d) description of any other analyses that been done on the data
+      
+    2) Visualizations of the data: one or more plots
+    
+    3) Analyses: models, hypothesis tests, confidence intervals and other inferential statistics that give insight into your question
+    
+    4) Conclusions: What you found, future directions, etc.
+    
+    5) Reflection (do be completed on Canvas)
+       a) What went well 
+       b) What did you struggle with
+       c) What analyses did you do that you are not including, etc. 
+Please make your report look good by paying attention to detail, using additional R Markdown features etc. 
+If there is additional code or data you would like to include with your report, please create a github page and add a link to it in your report. Additionally, you can append the full code for your analysis in an appendix section at the end of the document, and then include only the most important pieces of code in the body of the report. For example, you can exclude details of data cleaning from the body of the report, but include anything of central to your analyses, and also any information about particular choices you made that might affect the results and why you made those choices (e.g., explain if data was excluded and why, etc.). 
+--> 
+
+
+
+
+
+
+
+
+
+
+<!-- There are some options that might help make your document look better.  
+Feel free to add adddtional options here -->
+```{r message=FALSE, warning=FALSE, tidy=TRUE, echo=FALSE}
+library(knitr)
+#install.packages("latex2exp")
+#install.packages('dplyr')
+#install.packages('ggplot2')
+
+library(latex2exp)
+library(dplyr)
+library(ggplot2)
+    # This makes sure the code is wrapped to fit when it creats a pdf
+opts_chunk$set(tidy.opts=list(width.cutoff=60))  
+knitr::opts_chunk$set(fig.width = 12, fig.height = 8)
+options(scipen=999)
+set.seed(123)
+    
+```
+
+
+
+
+
+
+
+$\\$
+
+
+
+
+
+
+
+
+
+## Introduction 
+
+
+<!--  
+Write ~1-3 paragraphs describing:
+1) What is problem you are addressing and why the problem you are addressing is interesting
+2) Where you got the data from, including a link to the website where you got the data if applicable 
+3) What other analyses have already been done with the data and possibly links to other analyses, also mention if you are using the data in another class or for another research project. 
+--> 
+### Background
+Tobacco use is the leading cause of disease, disability and deaths in the US and worldwide. Cigarettes smoking is the major source of tobacco use among the poplulation, directly leading to disease and does harm to nearly every organs of the body, like cancer, heart disease, lung disease and et al. Secondhand smoke contributes nearly 41K deaths among nonskoking adults and 400 deaths in infants each year. Except fot the direct harms on physical health, tobacco ingredient Nicotine also influences the mental health in the brain and leads to the addiction, which makes the physical health problem even worse. THe governments and many institutions pay more and more attention and effort on tobacco and smoking prevention. 
+
+E-cigarettes is a substitute for regular cigarettes, designed to help smokers to quit smoking with different shape, flavor. It can produce aerosol by heating a liquid containing nicotine. However, it becomes popular among kids, teens and young adults recently, who take the E-cig as a fashion toy without noticing its harms. Many reports suggest the E-cig could lead the kids begin to smoke earlier. The latest news from [CDC](https://www.cdc.gov/tobacco/basic_information/e-cigarettes/severe-lung-disease.html) reported EVALI (e-cigarette, or vaping, product use associated lung injury) cases and deaths. I am interested in if the E-cig could really help people quite smoking, how the the policies regulating E-cig effect the behavior of kids, teens and young adults. 
+
+### Data source and analysis 
+The data I will use are mainly from 
++ the website [Center for Disease COntrol and Prevention](https://www.cdc.gov/tobacco/data_statistics/index.htm), including: National youth tabacco survey, national adult tobacco survey, youth tobacco survey, Office on smoking and health's (OSHData) et al.
++ [National Addiction & HIV Data Archive Program](https://www.icpsr.umich.edu/icpsrweb/NAHDAP/index.jsp), population assessment of tobacco and health study series (PATH)
+
+
+
+   
+$\\$   
+   
+    
+
+
+
+
+## Results
+
+
+
+$\\$
+    
+
+
+### Data wrangling: cleanup the data and organize the data
+
+<!--  
+Very briefly discuss how you got the data into shape for your analyses. You can include some code here, although extensive data cleaning code should be put on github or in an appendix at the end of the document. 
+--> 
+```{r message=FALSE, warning=FALSE, tidy=TRUE,echo=FALSE}
+
+# install.packages("readxl")
+# install.packages("cli")
+# install.packages("formatR")
+library(readxl)
+library(dplyr)
+
+# load the data-1
+##precentage of adults in the US who have tried vaping of 2018 by age
+tried_vaping <- read_excel("statistic_id882611_us-adults-who-had-tried-vaping-or-using-electronic-cigarettes-as-of-2018-by-age.xlsx", sheet = "Data")%>%
+  slice(3:7) %>%
+  select(1:2) %>%
+  as.data.frame()
+##precentage of asults in the US who preferred cigarettes or vaping as of 2018, by age
+preference <- read_excel("statistic_id882640_us-adults-who-preferred-cigarettes-or-vaping-as-of-2018-by-age.xlsx", sheet = "Data") %>%
+  slice(3:6) %>%
+  select(1:5) %>%
+  as.data.frame()
+##Percentage of adults in the U.S. who habitually vaped tobacco products as of 2018, by age  
+vaping_habit <- read_excel("statistic_id882656_us-adults-who-habitually-vaped-tobacco-products-as-of-2018-by-age.xlsx", sheet = "Data")%>%
+  slice(3:7) %>%
+  select(1:2) %>%
+  as.data.frame()
+
+#rename the column
+names(tried_vaping) <- c("ages","tried_vaping")
+names(preference) <- c("ages", "prefer_cig","equal", "prefer_e_cig", "not_sure")
+names(vaping_habit) <- c("ages","habitually_vaping")
+
+# combine three tables together
+E_cig_population <- full_join(tried_vaping, full_join(preference, vaping_habit, by = c("ages" = "ages")), by = c("ages" = "ages"))
+
+# load the data-2: legislation of cigarette and E-cig
+## load the data
+E_cig_smokefreeC <- read.csv("CDC_STATE_System_E-Cigarette_Legislation_-_Smokefree_Campus.csv")
+E_cig_youth_access <- read.csv("CDC_STATE_System_E-Cigarette_Legislation_-_Youth_Access.csv")
+Cig_smokefreeC <- read.csv("CDC_STATE_System_Tobacco_Legislation_-_Smokefree_Campus.csv")
+Cig_youth_access <- read.csv("CDC_STATE_System_Tobacco_Legislation_-_Youth_Access.csv")
+
+## cleanup
+E_cig_SF_rank <- E_cig_smokefreeC %>%
+  filter(Quarter == 4, DataType == "Ranking") %>%  
+  select(YEAR, LocationAbbr, ProvisionGroupDesc,ProvisionDesc, ProvisionValue, ProvisionAltValue, GeoLocation) %>%
+  arrange(YEAR, LocationAbbr, GeoLocation, ProvisionDesc)%>%
+  group_by(YEAR, LocationAbbr, GeoLocation, ProvisionDesc)%>%
+  summarize(rank_var = round(weighted.mean(ProvisionAltValue+1)))
+
+E_cig_SF_penal <- E_cig_smokefreeC %>%
+  filter(Quarter == 4, DataType == "Money") %>%  
+  select(YEAR, LocationAbbr, ProvisionGroupDesc,ProvisionDesc, ProvisionValue, ProvisionAltValue, GeoLocation) %>%
+  arrange(YEAR, LocationAbbr, GeoLocation, ProvisionDesc)%>%
+  group_by(YEAR, LocationAbbr, GeoLocation, ProvisionDesc)%>%
+  summarize(penalty = round(weighted.mean(ProvisionAltValue)))
+
+E_US_SF_rank <- E_cig_SF_rank %>%
+  group_by(YEAR) %>%
+  summarize(Rank = mean(rank_var))
+E_US_SF_penal <- E_cig_SF_penal %>%
+  group_by(YEAR) %>%
+  summarize(penal = mean(penalty))
+# summarize the rank number and penalty of Tabacco use in campus in the whole US through 1995-2019
+E_US_SF <- full_join(E_US_SF_penal, E_US_SF_rank, by = c("YEAR"="YEAR")) 
+
+E_cig_YA_rank <- E_cig_youth_access %>%
+  filter(Quarter == 4, DataType %in% c("Ranking","Yes/No")) %>%
+  arrange(YEAR, LocationAbbr, GeoLocation, ProvisionDesc)%>%
+  select(YEAR, LocationAbbr, ProvisionGroupDesc,ProvisionDesc, ProvisionValue, ProvisionAltValue, GeoLocation) %>%
+  group_by(YEAR, LocationAbbr, GeoLocation, ProvisionDesc)%>%
+  summarize(rank_var = round(weighted.mean(ProvisionAltValue+1)))
+
+E_cig_YA_penal <- E_cig_youth_access %>%
+  filter(Quarter == 4, DataType == "Money") %>%  
+  select(YEAR, LocationAbbr, ProvisionGroupDesc,ProvisionDesc, ProvisionValue, ProvisionAltValue, GeoLocation) %>%
+  arrange(YEAR, LocationAbbr, GeoLocation, ProvisionDesc)%>%
+  group_by(YEAR, LocationAbbr, GeoLocation, ProvisionDesc)%>%
+  summarize(penalty = round(weighted.mean(ProvisionAltValue)))
+E_US_YA_rank <- E_cig_YA_rank %>%
+  group_by(YEAR) %>%
+  summarize(Rank2 = mean(rank_var))
+E_US_YA_penal <- E_cig_YA_penal %>%
+  group_by(YEAR) %>%
+  summarize(penal2 = mean(penalty))
+# summarize the rank number and penalty of Tabacco use in youth access in the whole US through 1995-2019, add it to the variable US_SF
+E_US_SF <- full_join(E_US_SF, E_US_YA_penal, by = c("YEAR"="YEAR"))%>%
+  full_join(E_US_YA_rank, by = c("YEAR" = "YEAR"))
+
+Cig_SF_rank <- Cig_smokefreeC %>%
+  filter(Quarter == 4, DataType %in% c("Ranking","Yes/No")) %>%
+  select(Year, LocationAbbr, ProvisionGroupDesc,ProvisionDesc, ProvisionValue, ProvisionAltValue, GeoLocation) %>%
+  arrange(Year, LocationAbbr, GeoLocation, ProvisionDesc)%>%
+  group_by(Year, LocationAbbr, GeoLocation, ProvisionDesc)%>%
+  summarize(rank_var = round(weighted.mean(ProvisionAltValue+1)))
+Cig_SF_penal <- Cig_smokefreeC %>%
+  filter(Quarter == 4, DataType == "Money") %>%
+  select(Year, LocationAbbr, ProvisionGroupDesc,ProvisionDesc, ProvisionValue, ProvisionAltValue, GeoLocation) %>%
+  arrange(Year, LocationAbbr, GeoLocation, ProvisionDesc)%>%
+  group_by(Year, LocationAbbr, GeoLocation, ProvisionDesc)%>%
+  summarize(penalty = round(weighted.mean(ProvisionAltValue)))
+Cig_US_SF_rank <- Cig_SF_rank %>%
+  group_by(Year) %>%
+  summarize(C_rank1 = mean(rank_var))
+Cig_US_SF_penal <- Cig_SF_penal %>%
+  group_by(Year) %>%
+  summarize(C_penal1 = mean(penalty))
+Cig_YA_rank <- Cig_youth_access %>%
+  filter(Quarter == 4, DataType %in% c("Ranking","Yes/No")) %>%
+  arrange(YEAR, LocationAbbr, GeoLocation, ProvisionDesc)%>%
+  select(YEAR, LocationAbbr, ProvisionGroupDesc,ProvisionDesc, ProvisionValue, ProvisionAltValue, GeoLocation) %>%
+  group_by(YEAR, LocationAbbr, GeoLocation, ProvisionDesc)%>%
+  summarize(rank_var = round(weighted.mean(ProvisionAltValue+1)))  
+Cig_YA_penal <- Cig_youth_access %>%
+  filter(Quarter == 4, DataType %in% c("Money")) %>%
+  arrange(YEAR, LocationAbbr, GeoLocation, ProvisionDesc)%>%
+  select(YEAR, LocationAbbr, ProvisionGroupDesc,ProvisionDesc, ProvisionValue, ProvisionAltValue, GeoLocation) %>%
+  group_by(YEAR, LocationAbbr, GeoLocation, ProvisionDesc)%>%
+  summarize(penalty = round(weighted.mean(ProvisionAltValue))) 
+Cig_US_YA_rank <- Cig_YA_rank %>%
+  group_by(YEAR) %>%
+  summarize(C_rank2 = mean(rank_var))
+Cig_US_YA_penal <- Cig_YA_penal %>%
+  group_by(YEAR) %>%
+  summarize(C_penal2 = mean(penalty))
+
+#US_SF: contain the rank level and penal level from E-cigarette and cigarette in the US through 1995 to 2019, the number1 penalty or rank is from smoke free campus dataset, the number2 penalty or rank is from youth access dataset. 
+US_SF <- E_US_SF %>%
+  rename(E_penalty1=penal, E_rank1 = Rank, E_penalty2 = penal2, E_rank2 = Rank2) %>%
+  full_join(Cig_US_SF_penal, by = c("YEAR" = "Year")) %>%
+  full_join(Cig_US_SF_rank, by = c("YEAR" = "Year")) %>%
+  full_join(Cig_US_YA_penal, by = c("YEAR" = "YEAR")) %>%
+  full_join(Cig_US_YA_rank, by = c("YEAR" = "YEAR")) 
+
+
+# load the data-3: youth behaviour risk
+## load the data
+youth_behaviour_risk <- read.csv("Youth_Tobacco_Survey__YTS__Data.csv") 
+SAMMEC <- read.csv("Smoking-Attributable_Mortality__Morbidity__and_Economic_Costs__SAMMEC__-_Smoking-Attributable_Expenditures__SAE_.csv")  
+## youth behabior risk
+youth_BR <- youth_behaviour_risk %>%
+  arrange(YEAR, LocationAbbr, TopicDesc) %>%
+  filter(Gender == "Overall") %>%
+  select(YEAR, LocationAbbr, TopicDesc, MeasureDesc, Sample_Size, Response, Data_Value, Data_Value_Unit, Education, GeoLocation)
+## Youth cigarette users 
+youth_cig <- filter(youth_BR, TopicDesc == "Cigarette Use (Youth)") %>%
+  arrange(YEAR, LocationAbbr, GeoLocation, TopicDesc, Response) %>%
+  group_by(YEAR, LocationAbbr, Response, GeoLocation) %>%
+  summarize(Value = sum(Sample_Size*Data_Value)/sum(Sample_Size))
+## Youth smokeless Tabacco users
+youth_smokeless <- filter(youth_BR, TopicDesc == "Smokeless Tobacco Use (Youth)") %>%
+  arrange(YEAR, LocationAbbr, GeoLocation, TopicDesc, Response) %>%
+  group_by(YEAR, LocationAbbr, Response, GeoLocation) %>%
+  summarize(Value = sum(Sample_Size*Data_Value)/sum(Sample_Size))
+## youth cecassion
+youth_cessation <- filter(youth_BR, TopicDesc == "Cessation (Youth)", MeasureDesc == "Percent of Current Smokers Who Want to Quit") %>%
+  arrange(YEAR, LocationAbbr, GeoLocation, TopicDesc) %>%
+  group_by(YEAR, LocationAbbr, GeoLocation) %>%
+  summarize(Value = sum(Sample_Size*Data_Value)/sum(Sample_Size))
+
+## medical cost: from 2005-2009
+medical_cost <- SAMMEC %>%
+  arrange(Year, LocationAbbr, GeoLocation)%>%
+  filter(Variable == "Total") %>%
+  select(Year, LocationAbbr, GeoLocation, Variable, Data_Value, Data_Value_Type)
+
+
+```
+
+$\\$
+    
+
+### Visualize the data: Tobacco using in US population
+<!--  
+Create one or more plots of your data. Describe the plot(s), what they shows, and why they are of interest to your analysis. Include the code to create these plots in the R chunk below. You can also discuss the plots after the code too. Finally, be sure to make plots as clear as possible (clear axis labeling, legends and captions) so that it is easy for the reader to quickly understand the central information being conveyed. 
+--> 
+
+
+
+
+```{r message=FALSE, warning=FALSE, tidy=TRUE, echo=TRUE}
+# the cigarettes population among all the age in 2018
+library(ggplot2)
+#install.packages("viridis")
+library(viridis)
+#install.packages("hrbrthemes")
+library(hrbrthemes)
+#install.packages("tidyr")
+library(tidyr)
+#install.packages("scale")
+library(scales)
+
+brks <- c(0, 0.25, 0.5, 0.75, 1)
+E_cig_pop <- E_cig_population %>%
+  select(ages,tried_vaping, habitually_vaping) %>%
+  pivot_longer(-ages)
+E_cig_pop$value <- as.numeric(as.character(E_cig_pop$value))
+E_cig_pop <- E_cig_pop %>%
+  ggplot(aes(x = ages, y = value, fill = name)) +
+  geom_bar(position = "dodge", stat = "identity") +
+  scale_y_continuous(breaks = brks, labels = scales::percent(brks)) +
+  ggtitle("percentage of population has tried E-cigarette and habitually vaping in US before 2018") +
+  xlab("ages") +
+  ylab("percentage")
+
+E_cig_pop2 <- filter(E_cig_population[1:4,]) %>%
+  select(ages, prefer_cig, equal, prefer_e_cig, not_sure)%>%
+  pivot_longer(-ages)
+E_cig_pop2$value <- as.numeric(as.character(E_cig_pop2$value))
+
+E_cig_pop2 <- E_cig_pop2 %>%
+  ggplot(aes(x = ages, y = value, fill = factor(name))) +
+  geom_bar(position = "fill", stat = "identity") +
+  scale_y_continuous(breaks = brks, labels = scales::percent(brks)) +
+  ggtitle("cigarettes preference percentage of population in US before 2018") +
+  xlab("ages") +
+  ylab("preference percentage")
+youth_smokeless_p <- youth_smokeless%>%
+  group_by(YEAR, Response)%>%
+  summarize(var = mean(Value))%>%
+  ggplot(aes(x = YEAR, y = var, col = Response))+
+  geom_jitter()+
+  scale_y_continuous(labels = scales::percent(brks)) +
+  ggtitle("Youth E-cig use in US") +
+  xlab("YEAR") +
+  ylab("Percentage")  
+youth_cig_P <- youth_cig %>%
+  group_by(YEAR, Response)%>%
+  summarize(var = mean(Value))%>%
+  ggplot(aes(x = YEAR, y = var, col = Response))+
+  geom_jitter()+
+  #scale_y_continuous(labels = scales::percent(brks)) +
+  ggtitle("Youth cigarette use in US") +
+  xlab("YEAR") +
+  ylab("Percentage")  
+par(mfrow = c(2, 2))
+(E_cig_pop)
+(E_cig_pop2)
+(youth_smokeless_p)
+(youth_cig_P)
+```
+
+<!--  
+Possible additional discussion of the plots here. 
+--> 
+
+E_cigarettes is more popular in youth group compared to the other age group. YOuth who have tried E-cig is more likely to become habitually vaping, which suggests E-cig is more attractive to youth and more likely to lead youth to use Tabacco. Along the time in US, the percentage of Youths using cigarette decreased while youths using E-cig seems not change. However, in total, the percentage of Youths using E-cig is higher than cigarettes. 
+
+
+
+
+
+
+$\\$    
+    
+
+
+
+
+
+
+
+    
+
+### Analyses: 
+#### If Tabacco restriction policy on Youth group has an influence on youth tabacco use? 
+
+<!--  
+Build linear models, run hypothesis tests, create confidence intervals and/or run simulations to answer questions that are of interest. 
+--> 
+
+```{r message=FALSE, warning=FALSE, tidy=TRUE, echo=FALSE}
+
+youth_E2 <- youth_smokeless %>%
+  group_by(YEAR, Response)%>%
+  summarize(E = mean(Value))%>%
+  filter(Response == "Current")%>%
+  select(-Response)
+youth_cig2 <- youth_cig %>%
+  group_by(YEAR, Response)%>%
+  summarize(C = mean(Value))%>%
+  filter(Response == "Current")%>%
+  select(-Response)
+US_SF <- mutate(US_SF, E_pol = (E_rank1+E_rank2+E_penalty1+E_penalty2))%>%
+  mutate(C_pol = (C_penal1+C_penal2+C_rank1+C_rank2))
+US_SF <- left_join(US_SF, youth_E2, by = c("YEAR" = "YEAR"))
+US_SF <- left_join(US_SF, youth_cig2, by = c("YEAR" = "YEAR"))
+
+US_SF <- filter(US_SF, YEAR %in% c(1999:2017))%>%
+  as.data.frame()
+ggplot(US_SF, aes(x = YEAR))+
+  geom_point(aes(y = E_pol), col = "red")+
+  geom_point(aes(y = C_pol), col = "blue")+
+  ggtitle("US policy on Tabaco restriction through years")+
+  xlab("YEAR")+
+  ylab("policy score")
+ggplot(US_SF, aes(x = YEAR))+
+  geom_point(aes(y = E), col = "red")+
+  geom_point(aes(y = C), col = "blue")+
+  scale_y_continuous(labels = scales::percent(brks)) +
+  ggtitle("current tabacco useing percentage in youth")+
+  xlab("YEAR")+
+  ylab("percentage")
+```
+These two plots show the policy cnahge through years in US and the percentage of Tabacco usin youth population change in US, blue line represensts cigarette and red line represents E-cig. For the poliocy score, the higher represents stricter restriction. We noticed that The government began to perform more and more effort on E-cigarettes restriction since 2010. 
+
+```{r regression model, message=FALSE, warning=FALSE, tidy=TRUE, echo=FALSE}
+# regression model: the relation between policy and Tabaco usage change)
+Cig_fit <- lm(US_SF$C~US_SF$C_pol)
+summary(Cig_fit)
+b0 = coef(Cig_fit)[1]
+b1 = coef(Cig_fit)[2]
+plot(US_SF$C_pol, US_SF$C, 
+     xlab = "Cigarette policy score",
+     ylab = "cigarette youth usage/percentage",
+     main = "relation between policy and usage of cigarette")
+abline(Cig_fit, col = "blue")
+
+R_adj_C <- 0.86
+
+E_fit <- lm(E~E_pol + log(E_pol) + E_pol^2, data = US_SF)
+summary(E_fit)
+b0_E = coef(E_fit)[1]
+b1_E = coef(E_fit)[2]
+plot(US_SF$E_pol, US_SF$E, 
+     xlab = "E-Cigarette policy score",
+     ylab = "E-cigarette youth usage/percentage",
+     main = "relation between policy and usage of E-cigarette")
+abline(E_fit, col = "blue")
+
+R_adj_E <- 0.5
+
+youth_E3 <- youth_smokeless %>%
+  group_by(YEAR, Response)%>%
+  summarize(E2 = mean(Value))%>%
+  filter(Response == "Ever")%>%
+  select(-Response)%>%
+  left_join(youth_E2, by = c("YEAR" = "YEAR"))%>%
+  mutate(dif = E2 - E)
+youth_cig3 <- youth_cig %>%
+  group_by(YEAR, Response)%>%
+  summarize(C2 = mean(Value))%>%
+  filter(Response == "Ever")%>%
+  select(-Response)%>%
+  left_join(youth_cig2, by = c("YEAR" = "YEAR"))%>%
+  mutate(dif = C2 - C)
+# the dif variable in youth_E3 and youth_cig3 represents the difference between the percentage of ever tried the product and currently using the product
+t.test(youth_E3$dif, youth_cig3$dif) 
+
+```
+Based on the t test of the mean of difference between "Ever tried product and "currect" using product population percentage, from E_cigarette and Cigarettes, we notices that people tried E-cigarettes are more likely to keep using it than cigarette, the difference is statistically significant.
+
+
+#### If Tabacco restriction policy on Youth group has an influence in medical cost in US? 
+
+```{r restriction and medical cost, message=FALSE, warning=FALSE, tidy=TRUE, echo=FALSE}
+medical_cost_year <- medical_cost%>%
+  group_by(Year)%>%
+  summarize(cost = mean(Data_Value))
+US_SF <- full_join(US_SF, medical_cost_year, by = c("YEAR" = "Year"))
+
+plot(medical_cost_year$Year, medical_cost_year$cost,
+     xlab = "Year",
+     ylab = "medical cost/million of dollar",
+     main = "medical cost change along the time")
+medical_fit_C <- lm(cost ~ C, data = US_SF[7:11,])
+summary(medical_fit_C)
+medical_fit_E <- lm(cost ~ E, data = US_SF[7:11,])
+summary(medical_fit_E)
+
+```
+
+$\\$
+
+
+    
+    
+    
+    
+    
+    
+
+
+## Conclusion 
+
+
+
+<!--  
+1-2 paragraphs summarizing what you found, how the findings address your question of interest, and possible future directions. Please make sure describe your conclusions in an intuitive way, and make sure that your argument is strong and backed by solid evidence from your data. 
+-->
+
+### From population tabaco survay dataset I found several facts
+
++ By comparing the different age group, the youth is more likely to try E-cig
++ Youth who have tried E-cigarette is more likely to keep doing it, compared to youth who tried cigarettes before. 
++ From the survey, since 1995, youth using Cigarette is decreasing which is surpring to me, however the percentage of E-cig user didn't change. Compare this two population, E-cig has a larger user population than Cigarette in Youth.
++ The government set several laws to restrict the youth tabacco usage. I use the restriction score to represent the level of restriction, higher the score is, more restrict the law is. Since 2010, The government began to pay more attention on E-cig restriction. 
++ The Cigarettes restriction score has a linear relation with Cigarette usage, the linear relation is statistically significant, with adjusted R^2 0.86. However, the E-cigarette restriction score doesn't show relation with E-cig usage, one reseason could be the E-cig restriction just began, with a quite low score before 2010. 
++ The medical cost increases year by year, in which, cigarette use play a role. The cavots is I only have medical cost data from 2005 to 2009, which is outdated. 
+
+
+
+
+
+
+
+
+$\\$
+
+
+
+
+
+
+## Reflection
+
+
+<!--  
+Reflection  
+Write one paragraph describing what went well with this project and what was more difficult. Also describe any additional things you tried that you did not end up including in this write-up, and approximately how much time you spend working the project. 
+Finally, please go to Canvas and answer a few questions related to how this project went: https://yale.instructure.com/courses/51220/quizzes/20279
+-->
+I had a hard time for data wrangling and cleaning up, and decided which dataset is more proper. I also spent quiet a long time on visualizing the data. I would like to try to find a model to fit the medical cost with E-cigarette using, and also find the E-cigarette influence on youth. I spend three days on the projects. 
+
+
+
+$\\$
+
+
+
+
+## Appendix
+
+
+<!--  
+You can include a complete listing of your code here if you could not fit it into the body of the document. Make sure your code is well commmented and easy to create - i.e., use meaningful object names, separate your code into sections, describe what each section is doing, etc. 
+-->
+My code is here: https://github.com/jessyqianxu/SDS230_final_project.git
